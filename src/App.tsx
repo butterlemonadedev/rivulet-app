@@ -1,12 +1,21 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useSharedValue, withSpring } from 'react-native-reanimated';
+import { WaterCanvas } from './components/WaterCanvas';
+import { WATER_THEMES } from './constants/colors';
 
 export default function App() {
+  const fillLevel = useSharedValue(0);
+
+  useEffect(() => {
+    fillLevel.value = withSpring(0.5, { damping: 10, stiffness: 80 });
+  }, []);
+
   return (
     <GestureHandlerRootView style={styles.root}>
       <View style={styles.container}>
-        <Text style={styles.text}>Drip</Text>
+        <WaterCanvas fillLevel={fillLevel} colors={WATER_THEMES.default} />
       </View>
     </GestureHandlerRootView>
   );
@@ -14,6 +23,5 @@ export default function App() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
-  text: { fontSize: 32, fontWeight: '300', letterSpacing: -1, color: '#000' },
+  container: { flex: 1, backgroundColor: '#fff' },
 });
