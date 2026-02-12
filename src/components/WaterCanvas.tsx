@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useWindowDimensions } from 'react-native';
 import {
   Canvas,
@@ -14,6 +14,7 @@ import {
   useSharedValue,
   interpolate,
   withTiming,
+  withDelay,
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
@@ -51,12 +52,14 @@ interface WaterCanvasProps {
   fillLevel: SharedValue<number>;
   colors: { surface: string; mid: string; deep: string; backWaveOpacity: number };
   onTap?: () => void;
+  celebrationKey?: number;
 }
 
-export function WaterCanvas({ fillLevel, colors, onTap }: WaterCanvasProps) {
+export function WaterCanvas({ fillLevel, colors, onTap, celebrationKey = 0 }: WaterCanvasProps) {
   const { width, height } = useWindowDimensions();
   const clock = useClock();
 
+  // Tap ripple
   const rippleX = useSharedValue(0);
   const rippleY = useSharedValue(0);
   const rippleProgress = useSharedValue(0);
@@ -67,6 +70,43 @@ export function WaterCanvas({ fillLevel, colors, onTap }: WaterCanvasProps) {
   const rippleOpacity = useDerivedValue(() =>
     interpolate(rippleProgress.value, [0, 1], [0.45, 0])
   );
+
+  // Celebration rings (3 staggered expanding circles from center)
+  const ring1 = useSharedValue(0);
+  const ring2 = useSharedValue(0);
+  const ring3 = useSharedValue(0);
+  const amplitudeBoost = useSharedValue(1);
+
+  const ringCx = width / 2;
+  const ringCy = height * 0.38;
+
+  useEffect(() => {
+    if (celebrationKey > 0) {
+      ring1.value = 0;
+      ring1.value = withTiming(1, { duration: 1400, easing: Easing.out(Easing.cubic) });
+
+      ring2.value = 0;
+      ring2.value = withDelay(200,
+        withTiming(1, { duration: 1400, easing: Easing.out(Easing.cubic) })
+      );
+
+      ring3.value = 0;
+      ring3.value = withDelay(400,
+        withTiming(1, { duration: 1400, easing: Easing.out(Easing.cubic) })
+      );
+
+      // Wave surge — temporarily triple the amplitude
+      amplitudeBoost.value = 3.5;
+      amplitudeBoost.value = withTiming(1, { duration: 2500, easing: Easing.out(Easing.cubic) });
+    }
+  }, [celebrationKey]);
+
+  const ring1R = useDerivedValue(() => interpolate(ring1.value, [0, 1], [0, Math.max(width, height) * 0.6]));
+  const ring1Op = useDerivedValue(() => interpolate(ring1.value, [0, 0.3, 1], [0, 0.5, 0]));
+  const ring2R = useDerivedValue(() => interpolate(ring2.value, [0, 1], [0, Math.max(width, height) * 0.5]));
+  const ring2Op = useDerivedValue(() => interpolate(ring2.value, [0, 0.3, 1], [0, 0.4, 0]));
+  const ring3R = useDerivedValue(() => interpolate(ring3.value, [0, 1], [0, Math.max(width, height) * 0.4]));
+  const ring3Op = useDerivedValue(() => interpolate(ring3.value, [0, 0.3, 1], [0, 0.3, 0]));
 
   const tap = Gesture.Tap().onEnd((e) => {
     'worklet';
@@ -79,14 +119,16 @@ export function WaterCanvas({ fillLevel, colors, onTap }: WaterCanvasProps) {
 
   const backWave = useDerivedValue(() => {
     const t = clock.value / 1000;
+    const boost = amplitudeBoost.value;
     const fillY = interpolate(fillLevel.value, [0, 1], [height, 0]);
-    return buildWavePath(width, height, fillY, 14, 1.8, t * 1.2);
+    return buildWavePath(width, height, fillY, 14 * boost, 1.8, t * 1.2);
   });
 
   const frontWave = useDerivedValue(() => {
     const t = clock.value / 1000;
+    const boost = amplitudeBoost.value;
     const fillY = interpolate(fillLevel.value, [0, 1], [height, 0]);
-    return buildWavePath(width, height, fillY, 8, 3.2, t * 2.4 + 0.8);
+    return buildWavePath(width, height, fillY, 8 * boost, 3.2, t * 2.4 + 0.8);
   });
 
   return (
@@ -109,7 +151,7 @@ export function WaterCanvas({ fillLevel, colors, onTap }: WaterCanvasProps) {
             positions={[0, 0.35, 1]}
           />
         </Path>
-        {/* Ripple */}
+        {/* Tap ripple */}
         <Circle
           cx={rippleX}
           cy={rippleY}
@@ -119,6 +161,10 @@ export function WaterCanvas({ fillLevel, colors, onTap }: WaterCanvasProps) {
           style="stroke"
           strokeWidth={2.5}
         />
+        {/* Celebration rings */}
+        <Circle cx={ringCx} cy={ringCy} r={ring1R} opacity={ring1Op} color="white" style="stroke" strokeWidth={3} />
+        <Circle cx={ringCx} cy={ringCy} r={ring2R} opacity={ring2Op} color="white" style="stroke" strokeWidth={2.5} />
+        <Circle cx={ringCx} cy={ringCy} r={ring3R} opacity={ring3Op} color="white" style="stroke" strokeWidth={2} />
       </Canvas>
     </GestureDetector>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { requestWidgetUpdate } from 'react-native-android-widget';
 import { WaterWidget } from '../widgets/WaterWidget';
@@ -17,6 +17,8 @@ export function HomeScreen() {
   const { ui, water } = useTheme();
   const { trackGlass } = useInterstitialManager(data?.installedAt);
   const fillLevel = useSharedValue(0);
+  const [celebrationKey, setCelebrationKey] = useState(0);
+  const prevGlasses = useRef(0);
 
   // Sync fill level with data
   useEffect(() => {
@@ -24,6 +26,17 @@ export function HomeScreen() {
     const level = Math.min(data.today.glasses / data.today.goal, 1.2);
     fillLevel.value = withSpring(level, { damping: 12, stiffness: 90 });
   }, [data?.today.glasses, data?.today.goal]);
+
+  // Detect goal reached — fire celebration
+  useEffect(() => {
+    if (!data) return;
+    const { glasses, goal } = data.today;
+    if (prevGlasses.current < goal && glasses >= goal) {
+      setCelebrationKey((k) => k + 1);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    prevGlasses.current = glasses;
+  }, [data?.today.glasses]);
 
   // One-time rating prompt after 7-day streak
   useEffect(() => {
@@ -61,9 +74,16 @@ export function HomeScreen() {
 
   if (!data) return null;
 
+  const goalReached = data.today.glasses >= data.today.goal && data.today.glasses > 0;
+
   return (
     <View style={[styles.container, { backgroundColor: ui.background }]}>
-      <WaterCanvas fillLevel={fillLevel} colors={water} onTap={handleTap} />
+      <WaterCanvas
+        fillLevel={fillLevel}
+        colors={water}
+        onTap={handleTap}
+        celebrationKey={celebrationKey}
+      />
       <View style={styles.overlay} pointerEvents="none">
         <Text style={[styles.count, { color: ui.text }]}>
           {data.today.glasses}
@@ -71,6 +91,10 @@ export function HomeScreen() {
         {data.today.glasses > data.today.goal ? (
           <Text style={[styles.label, { color: ui.textSecondary }]}>
             {data.today.goal} reached — keep going!
+          </Text>
+        ) : goalReached ? (
+          <Text style={[styles.label, { color: ui.textSecondary }]}>
+            Goal reached!
           </Text>
         ) : data.today.glasses === 0 ? (
           <Text style={[styles.label, { color: ui.textSecondary }]}>
