@@ -20,5 +20,10 @@ export function useWaterData() {
     setData(updated);
   }, [data]);
 
-  return { data, addGlass, setGoal };
+  const reload = useCallback(async () => {
+    const freshData = await loadWaterData();
+    setData(freshData);
+  }, []);
+
+  return { data, addGlass, setGoal, reload };
 }

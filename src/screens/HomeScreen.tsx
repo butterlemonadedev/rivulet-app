@@ -7,7 +7,7 @@ import { useWaterData } from '../hooks/useWaterData';
 import { useTheme } from '../hooks/useTheme';
 
 export function HomeScreen() {
-  const { data, addGlass } = useWaterData();
+  const { data, addGlass, reload } = useWaterData();
   const { ui, water } = useTheme();
   const fillLevel = useSharedValue(0);
 
@@ -17,6 +17,14 @@ export function HomeScreen() {
     const level = Math.min(data.today.glasses / data.today.goal, 1.2);
     fillLevel.value = withSpring(level, { damping: 12, stiffness: 90 });
   }, [data?.today.glasses, data?.today.goal]);
+
+  // Midnight reset — check every 60s if the date rolled over
+  useEffect(() => {
+    const interval = setInterval(() => {
+      reload();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [reload]);
 
   const handleTap = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -32,9 +40,19 @@ export function HomeScreen() {
         <Text style={[styles.count, { color: ui.text }]}>
           {data.today.glasses}
         </Text>
-        <Text style={[styles.label, { color: ui.textSecondary }]}>
-          of {data.today.goal} glasses
-        </Text>
+        {data.today.glasses > data.today.goal ? (
+          <Text style={[styles.label, { color: ui.textSecondary }]}>
+            {data.today.goal} reached — keep going!
+          </Text>
+        ) : data.today.glasses === 0 ? (
+          <Text style={[styles.label, { color: ui.textSecondary }]}>
+            Tap to start hydrating
+          </Text>
+        ) : (
+          <Text style={[styles.label, { color: ui.textSecondary }]}>
+            of {data.today.goal} glasses
+          </Text>
+        )}
       </View>
     </View>
   );
