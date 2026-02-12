@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
+import { requestWidgetUpdate } from 'react-native-android-widget';
+import { WaterWidget } from '../widgets/WaterWidget';
 import { useSharedValue, withSpring } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { WaterCanvas } from '../components/WaterCanvas';
@@ -33,6 +35,16 @@ export function HomeScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     addGlass();
     trackGlass();
+
+    if (Platform.OS === 'android') {
+      const newGlasses = (data?.today.glasses ?? 0) + 1;
+      const goal = data?.today.goal ?? 8;
+      requestWidgetUpdate({
+        widgetName: 'WaterTracker',
+        renderWidget: () => <WaterWidget glasses={newGlasses} goal={goal} />,
+        widgetNotFound: () => {},
+      });
+    }
   };
 
   if (!data) return null;

@@ -32,6 +32,26 @@ export default {
           iosAppId: "ca-app-pub-3940256099942544~1458002511",
         },
       ],
+      [
+        "react-native-android-widget",
+        {
+          widgets: [
+            {
+              name: "WaterTracker",
+              label: "Water Tracker",
+              minWidth: "250dp",
+              minHeight: "110dp",
+              targetCellWidth: 3,
+              targetCellHeight: 2,
+              description: "Track your daily water intake",
+              previewImage: "./assets/widget-preview.png",
+              updatePeriodMillis: 1800000,
+              resizeMode: "horizontal|vertical",
+              widgetFeatures: "reconfigurable",
+            },
+          ],
+        },
+      ],
     ],
     extra: {
       eas: {
