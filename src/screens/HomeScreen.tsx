@@ -9,6 +9,7 @@ import { SettingsDrawer } from '../components/SettingsDrawer';
 import { useWaterData } from '../hooks/useWaterData';
 import { useTheme } from '../hooks/useTheme';
 import { useInterstitialManager } from '../hooks/useInterstitialManager';
+import { updateWidgetData, reloadWidgetTimelines } from '../services/widgetBridge';
 
 export function HomeScreen() {
   const { data, addGlass, setGoal, reload } = useWaterData();
@@ -36,14 +37,17 @@ export function HomeScreen() {
     addGlass();
     trackGlass();
 
+    const newGlasses = (data?.today.glasses ?? 0) + 1;
+    const goal = data?.today.goal ?? 8;
+
     if (Platform.OS === 'android') {
-      const newGlasses = (data?.today.glasses ?? 0) + 1;
-      const goal = data?.today.goal ?? 8;
       requestWidgetUpdate({
         widgetName: 'WaterTracker',
         renderWidget: () => <WaterWidget glasses={newGlasses} goal={goal} />,
         widgetNotFound: () => {},
       });
+    } else {
+      updateWidgetData(newGlasses, goal).then(() => reloadWidgetTimelines());
     }
   };
 
