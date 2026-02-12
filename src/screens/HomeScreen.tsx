@@ -6,10 +6,12 @@ import { WaterCanvas } from '../components/WaterCanvas';
 import { SettingsDrawer } from '../components/SettingsDrawer';
 import { useWaterData } from '../hooks/useWaterData';
 import { useTheme } from '../hooks/useTheme';
+import { useInterstitialManager } from '../hooks/useInterstitialManager';
 
 export function HomeScreen() {
   const { data, addGlass, setGoal, reload } = useWaterData();
   const { ui, water } = useTheme();
+  const { trackGlass } = useInterstitialManager(data?.installedAt);
   const fillLevel = useSharedValue(0);
 
   // Sync fill level with data
@@ -30,6 +32,7 @@ export function HomeScreen() {
   const handleTap = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     addGlass();
+    trackGlass();
   };
 
   if (!data) return null;
