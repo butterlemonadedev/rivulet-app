@@ -18,7 +18,7 @@ struct WaterEntry: TimelineEntry {
 }
 
 struct WaterProvider: TimelineProvider {
-    let groupId = "group.com.butterlemonade.drip.shared"
+    let groupId = "group.com.butterlemonade.rivulet.shared"
 
     func placeholder(in context: Context) -> WaterEntry {
         WaterEntry(date: Date(), glasses: 4, goal: 8)
@@ -87,14 +87,14 @@ struct WaterWidgetView: View {
 }
 
 @main
-struct DripWidget: Widget {
-    let kind = "DripWidget"
+struct RivuletWidget: Widget {
+    let kind = "RivuletWidget"
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: WaterProvider()) { entry in
             WaterWidgetView(entry: entry)
         }
-        .configurationDisplayName("Drip")
+        .configurationDisplayName("Rivulet")
         .description("Track your daily water intake")
         .supportedFamilies([.systemSmall, .systemMedium])
     }

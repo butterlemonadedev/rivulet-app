@@ -1,7 +1,7 @@
 export default {
   expo: {
-    name: "Drip",
-    slug: "drip-water-tracker",
+    name: "Rivulet",
+    slug: "rivulet-water-tracker",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",
@@ -12,7 +12,7 @@ export default {
     },
     ios: {
       supportsTablet: false,
-      bundleIdentifier: "com.butterlemonade.drip",
+      bundleIdentifier: "com.butterlemonade.rivulet",
       buildNumber: "1",
     },
     android: {
@@ -20,11 +20,10 @@ export default {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff",
       },
-      package: "com.butterlemonade.drip",
+      package: "com.butterlemonade.rivulet",
       versionCode: 1,
     },
     plugins: [
-      "@shopify/react-native-skia",
       [
         "react-native-google-mobile-ads",
         {
@@ -55,7 +54,7 @@ export default {
     ],
     extra: {
       eas: {
-        projectId: "REPLACE_WITH_EAS_PROJECT_ID",
+        projectId: "e9096cd9-b91a-4be8-8518-4b146c9ab9f3",
       },
     },
   },

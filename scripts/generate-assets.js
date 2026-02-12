@@ -1,5 +1,5 @@
 /**
- * Drip App - Asset Generator using ComfyUI API
+ * Rivulet App - Asset Generator using ComfyUI API
  *
  * Generates: app icon, splash screen, adaptive icon, widget preview, feature graphic
  * Uses SDXL Base 1.0 with CLIPTextEncodeSDXL workflow

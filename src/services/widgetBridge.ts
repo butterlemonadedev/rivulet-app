@@ -5,7 +5,7 @@ import { Platform } from 'react-native';
 // we'll use a simpler approach with expo-linking or a native module.
 // For now, we'll prepare the data structure.
 
-const APP_GROUP_ID = 'group.com.butterlemonade.drip.shared';
+const APP_GROUP_ID = 'group.com.butterlemonade.rivulet.shared';
 
 export async function updateWidgetData(glasses: number, goal: number): Promise<void> {
   if (Platform.OS === 'ios') {

@@ -37,7 +37,7 @@ export async function scheduleReminder(hour: number, minute: number): Promise<vo
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'Drip',
+      title: 'Rivulet',
       body: randomMessage,
     },
     trigger: {
