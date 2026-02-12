@@ -8,6 +8,7 @@ import { HistoryScreen } from './screens/HistoryScreen';
 import { OnboardingScreen } from './screens/OnboardingScreen';
 import { updateGoal, loadWaterData } from './services/waterStorage';
 import { initializeAds } from './services/adService';
+import { scheduleReminder } from './services/notificationService';
 
 const ONBOARDING_KEY = 'drip_onboarding_complete';
 
@@ -28,6 +29,7 @@ export default function App() {
     const data = await loadWaterData();
     await updateGoal(data, goal);
     await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+    scheduleReminder(10, 0).catch(console.error);
     setIsOnboarded(true);
   };
 
