@@ -7,12 +7,18 @@ import {
   Skia,
   vec,
   useClock,
+  Circle,
 } from '@shopify/react-native-skia';
 import {
   useDerivedValue,
+  useSharedValue,
   interpolate,
+  withTiming,
+  Easing,
+  runOnJS,
 } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 const SEGMENTS = 60;
 
@@ -44,11 +50,32 @@ function buildWavePath(
 interface WaterCanvasProps {
   fillLevel: SharedValue<number>;
   colors: { surface: string; mid: string; deep: string; backWaveOpacity: number };
+  onTap?: () => void;
 }
 
-export function WaterCanvas({ fillLevel, colors }: WaterCanvasProps) {
+export function WaterCanvas({ fillLevel, colors, onTap }: WaterCanvasProps) {
   const { width, height } = useWindowDimensions();
   const clock = useClock();
+
+  const rippleX = useSharedValue(0);
+  const rippleY = useSharedValue(0);
+  const rippleProgress = useSharedValue(0);
+
+  const rippleRadius = useDerivedValue(() =>
+    interpolate(rippleProgress.value, [0, 1], [0, 150])
+  );
+  const rippleOpacity = useDerivedValue(() =>
+    interpolate(rippleProgress.value, [0, 1], [0.45, 0])
+  );
+
+  const tap = Gesture.Tap().onEnd((e) => {
+    'worklet';
+    rippleX.value = e.x;
+    rippleY.value = e.y;
+    rippleProgress.value = 0;
+    rippleProgress.value = withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) });
+    if (onTap) runOnJS(onTap)();
+  });
 
   const backWave = useDerivedValue(() => {
     const t = clock.value / 1000;
@@ -63,22 +90,36 @@ export function WaterCanvas({ fillLevel, colors }: WaterCanvasProps) {
   });
 
   return (
-    <Canvas style={{ width, height, position: 'absolute' }}>
-      <Path path={backWave} opacity={colors.backWaveOpacity}>
-        <LinearGradient
-          start={vec(0, 0)}
-          end={vec(0, height)}
-          colors={[colors.surface, colors.deep]}
+    <GestureDetector gesture={tap}>
+      <Canvas style={{ width, height, position: 'absolute' }}>
+        {/* Back wave */}
+        <Path path={backWave} opacity={colors.backWaveOpacity}>
+          <LinearGradient
+            start={vec(0, 0)}
+            end={vec(0, height)}
+            colors={[colors.surface, colors.deep]}
+          />
+        </Path>
+        {/* Front wave */}
+        <Path path={frontWave}>
+          <LinearGradient
+            start={vec(0, 0)}
+            end={vec(0, height)}
+            colors={[colors.surface, colors.mid, colors.deep]}
+            positions={[0, 0.35, 1]}
+          />
+        </Path>
+        {/* Ripple */}
+        <Circle
+          cx={rippleX}
+          cy={rippleY}
+          r={rippleRadius}
+          opacity={rippleOpacity}
+          color="white"
+          style="stroke"
+          strokeWidth={2.5}
         />
-      </Path>
-      <Path path={frontWave}>
-        <LinearGradient
-          start={vec(0, 0)}
-          end={vec(0, height)}
-          colors={[colors.surface, colors.mid, colors.deep]}
-          positions={[0, 0.35, 1]}
-        />
-      </Path>
-    </Canvas>
+      </Canvas>
+    </GestureDetector>
   );
 }
