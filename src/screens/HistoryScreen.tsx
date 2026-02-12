@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import { useTheme } from '../hooks/useTheme';
 import { useWaterData } from '../hooks/useWaterData';
 import { DayLog } from '../services/waterStorage';
+import AD_UNIT_IDS from '../constants/adUnits';
 
 const DAY_INITIALS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -106,6 +108,14 @@ export function HistoryScreen() {
           );
         })}
       </View>
+
+      <View style={styles.bannerContainer}>
+        <BannerAd
+          unitId={AD_UNIT_IDS.BANNER}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          onAdFailedToLoad={(error) => console.log('Banner error:', error)}
+        />
+      </View>
     </View>
   );
 }
@@ -158,5 +168,12 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
+  },
+  bannerContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
 });

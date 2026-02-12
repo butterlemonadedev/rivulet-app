@@ -7,6 +7,7 @@ import { HomeScreen } from './screens/HomeScreen';
 import { HistoryScreen } from './screens/HistoryScreen';
 import { OnboardingScreen } from './screens/OnboardingScreen';
 import { updateGoal, loadWaterData } from './services/waterStorage';
+import { initializeAds } from './services/adService';
 
 const ONBOARDING_KEY = 'drip_onboarding_complete';
 
@@ -17,6 +18,10 @@ export default function App() {
     AsyncStorage.getItem(ONBOARDING_KEY).then((val) => {
       setIsOnboarded(val === 'true');
     });
+  }, []);
+
+  useEffect(() => {
+    initializeAds().catch(console.error);
   }, []);
 
   const handleOnboardingComplete = async (goal: number) => {
