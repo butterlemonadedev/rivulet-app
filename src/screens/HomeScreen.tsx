@@ -3,11 +3,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useSharedValue, withSpring } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { WaterCanvas } from '../components/WaterCanvas';
+import { SettingsDrawer } from '../components/SettingsDrawer';
 import { useWaterData } from '../hooks/useWaterData';
 import { useTheme } from '../hooks/useTheme';
 
 export function HomeScreen() {
-  const { data, addGlass, reload } = useWaterData();
+  const { data, addGlass, setGoal, reload } = useWaterData();
   const { ui, water } = useTheme();
   const fillLevel = useSharedValue(0);
 
@@ -54,6 +55,7 @@ export function HomeScreen() {
           </Text>
         )}
       </View>
+      <SettingsDrawer goal={data.today.goal} onGoalChange={setGoal} />
     </View>
   );
 }
