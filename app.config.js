@@ -14,6 +14,9 @@ export default {
       supportsTablet: false,
       bundleIdentifier: "com.butterlemonade.rivulet",
       buildNumber: "1",
+      infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
+      },
     },
     android: {
       adaptiveIcon: {
