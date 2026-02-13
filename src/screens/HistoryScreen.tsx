@@ -8,13 +8,6 @@ import AD_UNIT_IDS from '../constants/adUnits';
 
 const DAY_INITIALS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-// Sample data for new users so the screen doesn't look empty
-const SAMPLE_WEEK: number[] = [6, 8, 7, 5, 8, 8, 3];
-const SAMPLE_MONTH_MET = [
-  1,1,0,1,1,1,0,1,1,1,1,0,1,1,0,
-  1,1,1,0,1,1,1,1,0,1,1,0,1,1,0,
-];
-
 function getLast7Days(today: DayLog, history: DayLog[]): DayLog[] {
   const all = [...history, today];
   const last7: DayLog[] = [];
@@ -45,17 +38,12 @@ function getLast30Days(today: DayLog, history: DayLog[]): DayLog[] {
   return last30;
 }
 
-function hasRealHistory(history: DayLog[]): boolean {
-  return history.some((day) => day.glasses > 0);
-}
-
 export function HistoryScreen() {
   const { ui, water, isDark } = useTheme();
   const { data } = useWaterData();
 
   if (!data) return null;
 
-  const showSample = !hasRealHistory(data.history) && data.today.glasses === 0;
   const last7 = getLast7Days(data.today, data.history);
   const last30 = getLast30Days(data.today, data.history);
 
@@ -67,9 +55,7 @@ export function HistoryScreen() {
       {/* Weekly Bars */}
       <View style={styles.barsRow}>
         {last7.map((day, i) => {
-          const samplePct = showSample ? SAMPLE_WEEK[i] / 8 : 0;
-          const realPct = Math.min(day.glasses / day.goal, 1);
-          const pct = showSample ? samplePct : realPct;
+          const pct = Math.min(day.glasses / day.goal, 1);
           const dayOfWeek = new Date(day.date + 'T12:00:00').getDay();
           const isToday = i === 6;
 
@@ -82,7 +68,6 @@ export function HistoryScreen() {
                     {
                       height: `${pct * 100}%`,
                       backgroundColor: water.surface,
-                      opacity: showSample ? 0.4 : 1,
                     },
                   ]}
                 />
@@ -109,26 +94,20 @@ export function HistoryScreen() {
       {/* Monthly Dots */}
       <View style={styles.dotsGrid}>
         {last30.map((day, i) => {
-          const metGoal = showSample ? SAMPLE_MONTH_MET[i] === 1 : day.glasses >= day.goal;
+          const metGoal = day.glasses >= day.goal && day.glasses > 0;
           return (
             <View
               key={day.date}
               style={[
                 styles.dot,
                 metGoal
-                  ? { backgroundColor: water.surface, opacity: showSample ? 0.4 : 1 }
+                  ? { backgroundColor: water.surface }
                   : { borderWidth: 1, borderColor: ui.textSecondary },
               ]}
             />
           );
         })}
       </View>
-
-      {showSample && (
-        <Text style={[styles.sampleHint, { color: ui.textSecondary }]}>
-          Start drinking to track your history
-        </Text>
-      )}
 
       <View style={styles.bannerContainer}>
         <BannerAd
@@ -189,13 +168,6 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-  },
-  sampleHint: {
-    textAlign: 'center',
-    fontSize: 14,
-    fontWeight: '300',
-    letterSpacing: 0.3,
-    marginTop: 32,
   },
   bannerContainer: {
     position: 'absolute',
