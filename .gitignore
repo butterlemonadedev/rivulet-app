@@ -41,3 +41,4 @@ yarn-error.*
 /android
 tmp/
 google-service-account.json
+appdev-487300-*.json
