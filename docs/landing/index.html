@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rivulet — Water Tracker</title>
+    <meta name="description" content="Rivulet — Hydration, elevated. A beautifully crafted water tracker with liquid animations, one-tap tracking, and complete privacy.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ── Reset & Base ──────────────────────────────────── */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 40px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #e8e8e8;
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ── Utility ───────────────────────────────────────── */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        section {
+            padding: 100px 0;
+        }
+
+        a {
+            color: #4FC3F7;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #81D4FA;
+        }
+
+        /* ── Fade-in animation ─────────────────────────────── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp 0.9s ease forwards;
+        }
+
+        .fade-up-delay-1 { animation-delay: 0.15s; opacity: 0; }
+        .fade-up-delay-2 { animation-delay: 0.30s; opacity: 0; }
+        .fade-up-delay-3 { animation-delay: 0.45s; opacity: 0; }
+        .fade-up-delay-4 { animation-delay: 0.60s; opacity: 0; }
+
+        /* ── Navigation ────────────────────────────────────── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 0;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #fff;
+        }
+
+        .nav-logo span {
+            color: #4FC3F7;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #888;
+            font-size: 14px;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        /* ── Hero ──────────────────────────────────────────── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding-top: 80px;
+            overflow: hidden;
+        }
+
+        /* Water gradient background decoration */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(79, 195, 247, 0.08) 0%,
+                rgba(79, 195, 247, 0.03) 40%,
+                transparent 70%
+            );
+            pointer-events: none;
+        }
+
+        /* Animated wave decoration */
+        .hero-wave {
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 120px;
+            overflow: hidden;
+        }
+
+        .hero-wave::before,
+        .hero-wave::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -10%;
+            width: 120%;
+            height: 60px;
+            border-radius: 50% 50% 0 0;
+        }
+
+        .hero-wave::before {
+            background: rgba(79, 195, 247, 0.04);
+            animation: waveDrift 8s ease-in-out infinite alternate;
+        }
+
+        .hero-wave::after {
+            background: rgba(79, 195, 247, 0.02);
+            height: 40px;
+            bottom: 0;
+            animation: waveDrift 6s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes waveDrift {
+            0%   { transform: translateX(-2%) scaleY(1); }
+            100% { transform: translateX(2%) scaleY(1.3); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(56px, 10vw, 96px);
+            font-weight: 300;
+            letter-spacing: -0.04em;
+            color: #fff;
+            margin-bottom: 16px;
+            line-height: 1.05;
+        }
+
+        .hero .tagline {
+            font-size: clamp(18px, 3vw, 24px);
+            font-weight: 300;
+            color: #666;
+            letter-spacing: 0.02em;
+            margin-bottom: 56px;
+        }
+
+        .hero .tagline em {
+            font-style: italic;
+            color: #4FC3F7;
+        }
+
+        /* App store badges */
+        .badge-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            color: #ccc;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            transition: all 0.35s ease;
+        }
+
+        .badge:hover {
+            border-color: rgba(79, 195, 247, 0.3);
+            background: rgba(79, 195, 247, 0.06);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .badge .badge-icon {
+            font-size: 20px;
+        }
+
+        .badge .badge-label {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            line-height: 1.2;
+        }
+
+        .badge .badge-label small {
+            font-size: 10px;
+            font-weight: 400;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* ── Section headers ───────────────────────────────── */
+        .section-label {
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #4FC3F7;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 300;
+            color: #fff;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: #666;
+            max-width: 520px;
+            line-height: 1.7;
+        }
+
+        /* ── Features ──────────────────────────────────────── */
+        .features {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .features-header {
+            margin-bottom: 72px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            padding: 36px 28px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.015);
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(79, 195, 247, 0.12);
+            background: rgba(79, 195, 247, 0.03);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 20px;
+            display: block;
+            line-height: 1;
+        }
+
+        .feature-card h3 {
+            font-size: 17px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: -0.01em;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #777;
+            line-height: 1.7;
+        }
+
+        /* ── Screenshots ───────────────────────────────────── */
+        .screenshots {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .screenshots-header {
+            margin-bottom: 72px;
+        }
+
+        .screenshots-row {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .screenshot-placeholder {
+            width: 220px;
+            height: 440px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: linear-gradient(
+                170deg,
+                rgba(79, 195, 247, 0.04) 0%,
+                rgba(255, 255, 255, 0.01) 50%,
+                rgba(79, 195, 247, 0.02) 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            font-size: 13px;
+            font-weight: 400;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screenshot-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(
+                180deg,
+                rgba(79, 195, 247, 0.03) 0%,
+                transparent 100%
+            );
+            pointer-events: none;
+        }
+
+        .screenshot-placeholder:hover {
+            border-color: rgba(79, 195, 247, 0.15);
+            transform: translateY(-6px);
+        }
+
+        .screenshot-placeholder span {
+            opacity: 0.4;
+        }
+
+        /* ── Privacy section ───────────────────────────────── */
+        .privacy-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .privacy-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 48px;
+        }
+
+        .privacy-icon-large {
+            font-size: 48px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .privacy-text {
+            max-width: 600px;
+        }
+
+        .privacy-text h2 {
+            font-size: clamp(24px, 3vw, 32px);
+            font-weight: 300;
+            color: #fff;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .privacy-text p {
+            font-size: 15px;
+            color: #777;
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        .privacy-text .privacy-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4FC3F7;
+            transition: all 0.3s ease;
+        }
+
+        .privacy-text .privacy-link:hover {
+            color: #81D4FA;
+            gap: 10px;
+        }
+
+        /* ── Footer ────────────────────────────────────────── */
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 48px 0;
+            text-align: center;
+        }
+
+        footer .footer-brand {
+            font-size: 14px;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        footer .footer-brand strong {
+            color: #666;
+            font-weight: 500;
+        }
+
+        footer .footer-contact {
+            font-size: 13px;
+            color: #333;
+        }
+
+        footer .footer-contact a {
+            color: #555;
+        }
+
+        footer .footer-contact a:hover {
+            color: #4FC3F7;
+        }
+
+        /* ── Responsive ────────────────────────────────────── */
+        @media (max-width: 768px) {
+            section {
+                padding: 72px 0;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .nav-links a {
+                font-size: 13px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .screenshot-placeholder {
+                width: 180px;
+                height: 360px;
+            }
+
+            .privacy-content {
+                flex-direction: column;
+                gap: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            nav {
+                padding: 16px 0;
+            }
+
+            .nav-links {
+                gap: 16px;
+            }
+
+            .badge-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .badge {
+                width: 100%;
+                max-width: 260px;
+                justify-content: center;
+            }
+
+            .screenshot-placeholder {
+                width: 160px;
+                height: 320px;
+                border-radius: 20px;
+            }
+
+            .screenshots-row {
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="nav-logo"><span>&#x2BCC;</span> Rivulet</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#screenshots">Screenshots</a></li>
+                <li><a href="#privacy">Privacy</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="hero-content container">
+            <h1 class="fade-up">Rivulet</h1>
+            <p class="tagline fade-up fade-up-delay-1">Hydration, <em>elevated.</em></p>
+            <div class="badge-group fade-up fade-up-delay-2">
+                <a href="https://play.google.com/store/apps/details?id=com.butterlemonade.rivulet" class="badge" target="_blank" rel="noopener">
+                    <span class="badge-icon">&#9654;</span>
+                    <span class="badge-label">
+                        <small>Get it on</small>
+                        Google Play
+                    </span>
+                </a>
+                <a href="https://apps.apple.com/app/rivulet-water-tracker/id0000000000" class="badge" target="_blank" rel="noopener">
+                    <span class="badge-icon">&#63743;</span>
+                    <span class="badge-label">
+                        <small>Download on the</small>
+                        App Store
+                    </span>
+                </a>
+            </div>
+        </div>
+        <div class="hero-wave"></div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="features-header">
+                <p class="section-label">Features</p>
+                <h2 class="section-title">Designed for the<br>way you drink.</h2>
+                <p class="section-subtitle">No clutter. No complexity. Just a calm, beautiful companion for building your hydration habit.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">&#x1F30A;</span>
+                    <h3>Beautiful liquid animation</h3>
+                    <p>Watch a serene water animation respond as you log each glass. Satisfying, smooth, and crafted in detail.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">&#x1F4A7;</span>
+                    <h3>One-tap tracking</h3>
+                    <p>Log your water intake with a single tap. No menus, no friction &mdash; just effortless tracking throughout your day.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">&#x1F4CA;</span>
+                    <h3>Weekly &amp; monthly insights</h3>
+                    <p>See your hydration patterns at a glance with clean, minimal charts. Build consistency over weeks and months.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">&#x1F512;</span>
+                    <h3>Privacy first</h3>
+                    <p>All your data stays on your device. No accounts, no tracking, no cloud uploads. Completely private by design.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshots -->
+    <section class="screenshots" id="screenshots">
+        <div class="container">
+            <div class="screenshots-header">
+                <p class="section-label">Preview</p>
+                <h2 class="section-title">See it in action.</h2>
+                <p class="section-subtitle">A clean interface that stays out of your way and looks beautiful doing it.</p>
+            </div>
+            <div class="screenshots-row">
+                <div class="screenshot-placeholder">
+                    <span>Screenshot 1</span>
+                </div>
+                <div class="screenshot-placeholder">
+                    <span>Screenshot 2</span>
+                </div>
+                <div class="screenshot-placeholder">
+                    <span>Screenshot 3</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Privacy -->
+    <section class="privacy-section" id="privacy">
+        <div class="container">
+            <div class="privacy-content">
+                <span class="privacy-icon-large">&#x1F6E1;</span>
+                <div class="privacy-text">
+                    <h2>Your data never leaves your device.</h2>
+                    <p>Rivulet does not collect, store, or transmit any personal information. Your hydration logs, goals, and preferences exist only on your phone. No accounts. No cloud sync. No analytics on your habits.</p>
+                    <p>We believe privacy is not a feature &mdash; it is a right.</p>
+                    <a href="privacy-policy.html" class="privacy-link">Read our full privacy policy &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="footer-brand">Made by <strong>Butter Lemonade</strong></p>
+            <p class="footer-contact"><a href="mailto:info@butterlemonade.com">info@butterlemonade.com</a></p>
+        </div>
+    </footer>
+
+</body>
+</html>
