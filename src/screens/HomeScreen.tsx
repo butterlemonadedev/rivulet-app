@@ -76,6 +76,9 @@ export function HomeScreen() {
   if (!data) return null;
 
   const goalReached = data.today.glasses >= data.today.goal && data.today.glasses > 0;
+  // When water fills most of the screen, use bright text so it's readable against blue
+  const fillPct = data.today.glasses / data.today.goal;
+  const labelColor = fillPct >= 0.6 ? 'rgba(255,255,255,0.85)' : ui.textSecondary;
 
   return (
     <View style={[styles.container, { backgroundColor: ui.background }]}>
@@ -90,11 +93,11 @@ export function HomeScreen() {
           {data.today.glasses}
         </Text>
         {data.today.glasses > data.today.goal ? (
-          <Text style={[styles.label, { color: ui.textSecondary }]}>
-            {data.today.goal} reached — keep going!
+          <Text style={[styles.label, { color: labelColor }]}>
+            {data.today.goal} reached {'\u2014'} keep going!
           </Text>
         ) : goalReached ? (
-          <Text style={[styles.label, { color: ui.textSecondary }]}>
+          <Text style={[styles.label, { color: labelColor }]}>
             Goal reached!
           </Text>
         ) : data.today.glasses === 0 ? (
@@ -102,7 +105,7 @@ export function HomeScreen() {
             Tap to start hydrating
           </Text>
         ) : (
-          <Text style={[styles.label, { color: ui.textSecondary }]}>
+          <Text style={[styles.label, { color: labelColor }]}>
             of {data.today.goal} glasses
           </Text>
         )}
