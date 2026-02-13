@@ -38,7 +38,6 @@ export async function loadWaterData(): Promise<WaterData> {
   const now = todayKey();
   if (data.today.date !== now) {
     data.history.push(data.today);
-    // Keep last 90 days
     if (data.history.length > 90) data.history = data.history.slice(-90);
     data.today = { date: now, glasses: 0, goal: data.goal };
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -47,14 +46,20 @@ export async function loadWaterData(): Promise<WaterData> {
 }
 
 export async function logGlass(data: WaterData): Promise<WaterData> {
-  data.today.glasses += 1;
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  return { ...data };
+  const updated: WaterData = {
+    ...data,
+    today: { ...data.today, glasses: data.today.glasses + 1 },
+  };
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  return updated;
 }
 
 export async function updateGoal(data: WaterData, newGoal: number): Promise<WaterData> {
-  data.goal = newGoal;
-  data.today.goal = newGoal;
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  return { ...data };
+  const updated: WaterData = {
+    ...data,
+    goal: newGoal,
+    today: { ...data.today, goal: newGoal },
+  };
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  return updated;
 }

@@ -134,7 +134,7 @@ export function HistoryScreen() {
         <BannerAd
           unitId={AD_UNIT_IDS.BANNER}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          onAdFailedToLoad={(error) => console.log('Banner error:', error)}
+          onAdFailedToLoad={() => {}}
         />
       </View>
     </View>

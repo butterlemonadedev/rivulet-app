@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { InterstitialAd, AdEventType, TestIds } from 'react-native-google-mobile-ads';
+import { InterstitialAd, AdEventType } from 'react-native-google-mobile-ads';
 import AD_UNIT_IDS from '../constants/adUnits';
 
 const ACTIONS_BEFORE_AD = 3;
@@ -18,7 +18,7 @@ export function useInterstitialManager(installedAt: string | undefined) {
 
     const unsubClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
       setIsLoaded(false);
-      loadAd(); // preload next
+      loadAd();
     });
 
     const unsubError = interstitial.addAdEventListener(AdEventType.ERROR, () => {
@@ -41,7 +41,6 @@ export function useInterstitialManager(installedAt: string | undefined) {
   }, [loadAd]);
 
   const trackGlass = useCallback(() => {
-    // Skip if within first 24 hours of install
     if (installedAt) {
       const installTime = new Date(installedAt).getTime();
       const now = Date.now();

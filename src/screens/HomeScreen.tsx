@@ -10,7 +10,7 @@ import { useWaterData } from '../hooks/useWaterData';
 import { useTheme } from '../hooks/useTheme';
 import { useInterstitialManager } from '../hooks/useInterstitialManager';
 import { updateWidgetData, reloadWidgetTimelines } from '../services/widgetBridge';
-import { checkAndPromptRating } from '../services/ratingService';
+import { checkAndPromptRating, updateStreak } from '../services/ratingService';
 
 export function HomeScreen() {
   const { data, addGlass, setGoal, reload } = useWaterData();
@@ -38,9 +38,10 @@ export function HomeScreen() {
     prevGlasses.current = glasses;
   }, [data?.today.glasses]);
 
-  // One-time rating prompt after 7-day streak
+  // Update streak and check for rating prompt
   useEffect(() => {
     if (data && data.today.glasses > 0) {
+      updateStreak(data.today.glasses);
       checkAndPromptRating(data.today.glasses);
     }
   }, [data?.today.glasses]);

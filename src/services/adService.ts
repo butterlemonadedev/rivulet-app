@@ -4,7 +4,7 @@ export async function initializeAds(): Promise<void> {
   await mobileAds().setRequestConfiguration({
     maxAdContentRating: MaxAdContentRating.PG,
     tagForChildDirectedTreatment: false,
-    testDeviceIdentifiers: ['EMULATOR'],
+    testDeviceIdentifiers: __DEV__ ? ['EMULATOR'] : [],
   });
   await mobileAds().initialize();
 }

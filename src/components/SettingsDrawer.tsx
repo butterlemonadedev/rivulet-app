@@ -116,7 +116,7 @@ export function SettingsDrawer({ goal, onGoalChange }: SettingsDrawerProps) {
           </View>
         </View>
 
-        {/* Theme Row — placeholder for Task 15 */}
+        {/* Appearance */}
         <View style={styles.row}>
           <Text style={[styles.rowLabel, { color: ui.text }]}>Appearance</Text>
           <Text style={[styles.rowValue, { color: ui.textSecondary }]}>System</Text>
